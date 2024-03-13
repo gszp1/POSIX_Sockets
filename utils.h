@@ -5,6 +5,8 @@
 #include <sys/socket.h>
 #include <stdint.h>
 
+#define BITS_PER_BYTE 8
+
 typedef struct {
     uint8_t query_type[4];
     uint32_t request_id;
