@@ -20,7 +20,7 @@ typedef struct {
 
 //// functions declarations ////
 
-uint8_t check_endianess()
+uint8_t check_endianess();
 
 uint32_t get_uint_bigendian(uint32_t val);
 
