@@ -8,7 +8,7 @@
 typedef struct {
     uint8_t query_type[4];
     uint32_t request_id;
-} query_identificator_t;
+} query_identifier_t;
 
 
 uint32_t get_uint_bigendian(uint32_t val);
