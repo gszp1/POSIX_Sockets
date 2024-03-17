@@ -1,11 +1,18 @@
-#ifndef UTILS.H
-#define UTILS.H
+#ifndef UTILS_H
+#define UTILS_H
 
 //// Includes ////
 
 #include <stdio.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <signal.h>
+#include <unistd.h>
 #include <stdint.h>
+#include <math.h>
+#include <stdlib.h>
+#include <errno.h>
 
 //// macros definitions ////
 
