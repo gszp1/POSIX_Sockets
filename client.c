@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <stdlib.h>
 
 int main(int argc, char* argv[]) {
     // Check passed arguments
@@ -24,10 +23,16 @@ int main(int argc, char* argv[]) {
     server_address.sin_port = htons((uint16_t)port);
     server_address.sin_family = AF_INET;
     inet_aton(argv[1], &server_address.sin_addr);
+    socklen_t socklen = sizeof (server_address);
     
     // Connect with server
+    int conn_res = connect(sockfd, (struct sockaddr*)(&server_address), socklen);
+    if (conn_res != 0) {
+        printf("Failed to connect with server.");
+        close(sockfd);
+    }   
 
 
-    
-    
+    close(sockfd);
+    return 0;
 }
