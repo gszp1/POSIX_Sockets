@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <netinet/in.h>
 
 int main() {
     // Create server socket
@@ -30,7 +29,12 @@ int main() {
         return 2;
     } 
     
-    // listen for incoming connection requests
+    // set server socket for listening to incoming connections
+    if (listen(server_socket_fd, 10) == -1) {
+        printf("Failed to begin connection listening.");
+        close(server_socket_fd);
+        return 3;
+    } 
 
     // for each request spawn process
 
