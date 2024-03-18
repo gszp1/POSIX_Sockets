@@ -17,6 +17,7 @@
 //// macros definitions ////
 
 #define BITS_PER_BYTE 8
+#define PROTOCOL_AUTO 0
 
 //// types definitions ////
 

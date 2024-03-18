@@ -3,7 +3,7 @@
 int main(int argc, char* argv[]) {
     // Check passed arguments
     if (argc < 3) {
-        printf("Not enough parameters provided.\n Required: IP address, port number.\n");
+        printf("Not enough parameters provided.\n Required: IPv4 address, port number.\n");
         return 1;
     }
     errno = 0;
@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     }
 
     // Create client socket
-    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    int sockfd = socket(AF_INET, SOCK_STREAM, PROTOCOL_AUTO);
     if (sockfd == -1) {
         printf("Failed to create user socket.");
         return 3;
@@ -32,7 +32,15 @@ int main(int argc, char* argv[]) {
         close(sockfd);
     }   
 
+    // Send data to server (temporary)
+    char ch = 'a';
+    write(sockfd, &ch, 1); 
 
+    // Read server response (temporary)
+    read(sockfd, &ch, 1);
+    printf("%c", ch);
+
+    // Free resources and exit with code 0
     close(sockfd);
     return 0;
 }
