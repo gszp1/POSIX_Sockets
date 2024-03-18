@@ -20,7 +20,15 @@ int main() {
             inet_ntoa(server_sockaddr.sin_addr));
     
     // bind address to server socket
-    bind(server_socket_fd, (struct sockaddr*)(&server_sockaddr), sizeof(server_sockaddr));
+    int bind_res = bind(server_socket_fd, 
+       (struct sockaddr*)(&server_sockaddr), 
+        sizeof(server_sockaddr)
+        );
+    if (bind_res == -1) {
+        printf("Failed to bind address to socket.\n");
+        close(server_socket_fd);
+        return 2;
+    } 
     
     // listen for incoming connection requests
 
