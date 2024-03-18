@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <netinet/in.h>
 
 int main() {
     // Create server socket
@@ -35,14 +36,34 @@ int main() {
         close(server_socket_fd);
         return 3;
     } 
+    printf("S: Listening for connections.");
 
-    // for each request spawn process
-
-        // handle request
-
-        // exit
+    // connections loop
+    struct sockaddr_in client_sockaddr;
+    socklen_t client_len;
+    while (1) {
+        // connection acceptance
+        int client_socket_fd = accept(server_socket_fd,
+            (struct sockaddr *)(&client_sockaddr),
+        &client_len
+            );
+        if (client_socket_fd == -1) {
+            continue;
+        }
+        // display used socket and IPv4 address
+        printf("Client connected from port: %u\nIPv4 address: %s\n",
+                ntohs(client_sockaddr.sin_port),
+                inet_ntoa(client_sockaddr.sin_addr));
+        char ch;
+        read(client_socket_fd, &ch, 1);
+        printf("C: %c\n", ch);
+        ch++;
+        write(client_socket_fd, &ch, 1);
+        close(client_socket_fd);
+    }
 
     // Free used resources
-
+    close(server_socket_fd);
     // exit
+    return 0;
 }
