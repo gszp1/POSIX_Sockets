@@ -7,16 +7,16 @@ int main(int argc, char* argv[]) {
         return 1;
     }
     errno = 0;
-    uint64_t port = strtoul(argv[1], NULL, 10);
+    uint64_t port = strtoul(argv[2], NULL, 10);
     if ((errno == ERANGE) || (port == 0) || (port > UINT16_MAX)) {
-        printf ("Second argument is not a valid port number.");
+        printf ("Second argument is not a valid port number.\n");
         return 2;
     }
 
     // Create client socket
     int sockfd = socket(AF_INET, SOCK_STREAM, PROTOCOL_AUTO);
     if (sockfd == -1) {
-        printf("Failed to create user socket.");
+        printf("Failed to create user socket.\n");
         return 3;
     }
     struct sockaddr_in server_address;
@@ -28,8 +28,9 @@ int main(int argc, char* argv[]) {
     // Connect with server
     int conn_res = connect(sockfd, (struct sockaddr*)(&server_address), socklen);
     if (conn_res != 0) {
-        printf("Failed to connect with server.");
+        printf("Failed to connect with server.\n");
         close(sockfd);
+        return 4;
     }   
 
     // Send data to server (temporary)

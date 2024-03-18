@@ -36,7 +36,7 @@ int main() {
         close(server_socket_fd);
         return 3;
     } 
-    printf("S: Listening for connections.");
+    printf("S: Listening for connections.\n");
 
     // connections loop
     struct sockaddr_in client_sockaddr;
