@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <netinet/in.h>
 
 int main() {
     // Create server socket
@@ -10,10 +11,17 @@ int main() {
     }
     struct sockaddr_in server_sockaddr;
     server_sockaddr.sin_port = htons(9090);
-    server_sockaddr.sin_addr.s_addr = INADDR_ANY;
+    server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY); // listen to connections on all available IPv4 addresses on machine
     server_sockaddr.sin_family = AF_INET;
+    
     // display used socket and IPv4 address
-
+    printf("Server started at port: %u\nIPv4 address: %s\n",
+            ntohs(server_sockaddr.sin_port),
+            inet_ntoa(server_sockaddr.sin_addr));
+    
+    // bind address to server socket
+    bind(server_socket_fd, (struct sockaddr*)(&server_sockaddr), sizeof(server_sockaddr));
+    
     // listen for incoming connection requests
 
     // for each request spawn process
