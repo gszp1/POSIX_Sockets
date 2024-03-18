@@ -13,6 +13,9 @@ int main(int argc, char* argv[]) {
         return 2;
     }
 
+    // Set request data
+    query_identifier_t header = 
+
     // Create client socket
     int sockfd = socket(AF_INET, SOCK_STREAM, PROTOCOL_AUTO);
     if (sockfd == -1) {

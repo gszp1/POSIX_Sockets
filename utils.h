@@ -24,7 +24,7 @@
 typedef struct {
     uint8_t query_type[4];
     uint32_t request_id;
-} query_identifier_t;
+} query_header_t;
 
 //// functions declarations ////
 
