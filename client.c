@@ -1,16 +1,6 @@
 #include "utils.h"
 #include <stdint.h>
 
-void read_response(void** read_result, int sockfd);
-
-int8_t send_date_request(uint32_t msg_id, int sockfd);
-
-// Function for sending request for sqrt result to sockfd
-// 0 - success, -1 - failure
-int8_t send_sqrt_request(uint32_t msg_id, int sockfd, double value);
-
-int8_t safe_write(uint8_t* ptr, size_t len);
-
 int main(int argc, char* argv[]) {
     // Check passed arguments
     if (argc < 3) {
@@ -45,48 +35,5 @@ int main(int argc, char* argv[]) {
     }   
 
     close(sockfd);
-    return 0;
-}
-
-int8_t send_date_request(uint32_t msg_id, int sockfd) {
-    // Define header
-    query_header_t header;
-    header.message_id = htonl(msg_id);
-    header.query_type[0] = REQUEST;
-    header.query_type[1] = 0;
-    header.query_type[2] = 0;
-    header.query_type[3] = DATE_MESSAGE;
-
-    // Send date packet
-    int res = write(sockfd, &header, sizeof(header));
-    if (res == -1) {
-        return -1;
-    }
-
-    return 0;
-}
-
-int8_t send_sqrt_request(uint32_t msg_id, int sockfd, double value) {
-    // Define header
-    query_header_t header;
-    header.message_id = htonl(msg_id);
-    header.query_type[0] = REQUEST;
-    header.query_type[1] = 0;
-    header.query_type[2] = 0;
-    header.query_type[3] = SQRT_MESSAGE;
-
-    // Send header packet
-    int res = write(sockfd, &header, sizeof(header));
-    if (res == -1) {
-        return -1;
-    }
-    
-    // Send double packet
-    uint64_t write_double = get_double_bigendian(value);
-    res = write(sockfd, &write_double, sizeof(write_double));
-    if (res == -1) {
-        return -1;
-    }
-
     return 0;
 }
