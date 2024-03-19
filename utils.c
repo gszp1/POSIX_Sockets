@@ -9,6 +9,26 @@ uint8_t check_endianess() {
     return 0;
 }
 
+// wrapper for parsing host double to network double
+uint64_t htond(double host_double) {
+    if (check_endianess() == 0) { //if host machine is big endian
+        uint64_t net_double;
+        memcpy(&net_double, &host_double, sizeof(net_double));
+        return net_double;
+    }
+    return get_double_bigendian(host_double);
+}
+
+// wrapper for parsing network double to host double
+double ntohd(uint64_t net_double) {
+    if (check_endianess() == 0) { //if host machine is big endian
+        double host_double;
+        memcpy(&host_double, &net_double, sizeof(host_double));
+        return host_double;
+    }
+    return get_double_little_endian(net_double);
+}
+
 uint64_t get_double_bigendian(double val) {
     uint8_t res[8];
     memcpy (res, &val, sizeof(double));
