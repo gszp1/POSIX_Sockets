@@ -13,6 +13,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <time.h>
 
 //// macros definitions ////
 
@@ -42,4 +43,7 @@ int8_t safe_write(void* data, size_t length, int sockfd);
 
 int8_t safe_read(void* data, size_t length, int sockfd);
 
+int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, int sockfd);
+
+int8_t validate_header(query_header_t* header);
 #endif //uitls.h

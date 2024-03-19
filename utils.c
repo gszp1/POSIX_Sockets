@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdint.h>
 
 uint8_t check_endianess() {
     // 0 if big endian, 1 if little endian
@@ -65,6 +66,46 @@ int8_t safe_read(void* data, size_t length, int sockfd) {
             return -1;
         }
         read_bytes += (size_t)res;
+    }
+    return 0;
+}
+
+int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, int sockfd) {
+    if (validate_header(header) == -1) {
+        return -1;
+    }
+    if (safe_write(header, sizeof(query_header_t), sockfd) == -1) {
+        return -1;
+    }
+    if (header->query_type[0] == REQUEST) { //Request to server
+        if (header->query_type[3] == SQRT_MESSAGE) {
+            uint64_t send_double = get_double_bigendian(*(double*)msg_data);
+            if (safe_write(&send_double, sizeof(uint64_t), sockfd) == -1) {
+                return -1;
+            }
+        }
+        // Sending Request for date doesn't require additional data
+    } else if (header->query_type[1] == RESPONSE) { //Response to client
+        if (header->query_type[3] == SQRT_MESSAGE) {
+            uint64_t send_double = get_double_bigendian(*(double*)msg_data);
+            if (safe_write(&send_double, sizeof(uint64_t), sockfd) == -1) {
+                return -1;
+            }
+        } else {
+            // todo: Send date
+        }
+    } else { // unknown operation
+        return -1;
+    }
+    return 0;
+}
+
+int8_t validate_header(query_header_t* header) {
+    if ((header->query_type[0] != REQUEST) && (header->query_type[0] != RESPONSE)) {
+        return -1;
+    }
+    if ((header->query_type[3] != SQRT_MESSAGE) && (header->query_type[3] != DATE_MESSAGE)) {
+        return -1;
     }
     return 0;
 }

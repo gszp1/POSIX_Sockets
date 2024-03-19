@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <stdint.h>
 
 int main(int argc, char* argv[]) {
     // Check passed arguments
@@ -7,6 +6,16 @@ int main(int argc, char* argv[]) {
         printf("Not enough parameters provided.\n Required: IPv4 address, port number.\n");
         return 1;
     }
+
+    // Prepare data
+    query_header_t header;
+    header.message_id = htonl(1);
+    header.query_type[0] = REQUEST;
+    header.query_type[1] = 0;
+    header.query_type[2] = 0;
+    header.query_type[3] = SQRT_MESSAGE;
+    double data = 4;
+
     errno = 0;
     uint64_t port = strtoul(argv[2], NULL, 10);
     if ((errno == ERANGE) || (port == 0) || (port > UINT16_MAX)) {
@@ -33,6 +42,8 @@ int main(int argc, char* argv[]) {
         close(sockfd);
         return 4;
     }   
+
+    send_message(&header, &data, sizeof(data), sockfd);
 
     close(sockfd);
     return 0;
