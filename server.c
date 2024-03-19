@@ -53,7 +53,7 @@ int main() {
         printf("Client connected from port: %u\nIPv4 address: %s\n",
                 ntohs(client_sockaddr.sin_port),
                 inet_ntoa(client_sockaddr.sin_addr));
-        int fork_res = fork();
+        pid_t fork_res = fork();
         if (fork_res == 0) { // Child process
             while (1) { // Execute until client disconnects
                 query_header_t header;
