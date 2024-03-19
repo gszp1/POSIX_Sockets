@@ -62,8 +62,7 @@ int main() {
                 double val = 0;
                 int op_res = read_message(&header, &read_msg, &data_length, client_socket_fd);
                 if (op_res == -1) {
-                    close(client_socket_fd);
-                    return 0;
+                   break;
                 }
                 header.query_type[0] = RESPONSE;
                 if (header.query_type[3] == SQRT_MESSAGE) {
@@ -75,10 +74,10 @@ int main() {
                 }
                 op_res = send_message(&header, &val, sizeof(val),client_socket_fd);
                 if (op_res == -1) {
-                    close(client_socket_fd);
-                    return 0;
+                    break;
                 }
             }
+            close(client_socket_fd);
             return 0;
         }
         if (fork_res == -1) {
