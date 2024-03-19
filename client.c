@@ -14,7 +14,13 @@ int main(int argc, char* argv[]) {
     }
 
     // Set request data
-    query_identifier_t header = 
+    query_header_t header;
+    header.request_id = htonl(1);
+    header.query_type[0] = 1;
+    header.query_type[1] = 0;
+    header.query_type[2] = 0;
+    header.query_type[3] = 1;
+
 
     // Create client socket
     int sockfd = socket(AF_INET, SOCK_STREAM, PROTOCOL_AUTO);
@@ -38,11 +44,11 @@ int main(int argc, char* argv[]) {
 
     // Send data to server (temporary)
     char ch = 'a';
-    write(sockfd, &ch, 1); 
+    write(sockfd, &header, sizeof(query_header_t)); 
 
     // Read server response (temporary)
-    read(sockfd, &ch, 1);
-    printf("%c", ch);
+    read(sockfd, &header, 8);
+    printf("C: %u%u%u%u%u\n", header.query_type[0], header.query_type[1], header.query_type[2], header.query_type[3], ntohl(header.request_id));
 
     // Free resources and exit with code 0
     close(sockfd);

@@ -54,11 +54,18 @@ int main() {
         printf("Client connected from port: %u\nIPv4 address: %s\n",
                 ntohs(client_sockaddr.sin_port),
                 inet_ntoa(client_sockaddr.sin_addr));
-        char ch;
-        read(client_socket_fd, &ch, 1);
-        printf("C: %c\n", ch);
-        ch++;
-        write(client_socket_fd, &ch, 1);
+        query_header_t header;
+        int red = read(client_socket_fd, &header, sizeof(query_header_t));
+        printf("C: %u%u%u%u%u\n", header.query_type[0], header.query_type[1], header.query_type[2], header.query_type[3], ntohl(header.request_id));
+        printf ("%d\n", red);
+
+        header.request_id = htonl(2);
+        header.query_type[0] = 2;
+        header.query_type[1] = 0;
+        header.query_type[2] = 0;
+        header.query_type[3] = 2;
+
+        write(client_socket_fd, &header, sizeof(header));
         close(client_socket_fd);
     }
 
