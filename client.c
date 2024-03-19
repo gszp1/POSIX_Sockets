@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     header.query_type[0] = REQUEST;
     header.query_type[1] = 0;
     header.query_type[2] = 0;
-    header.query_type[3] = SQRT_MESSAGE;
+    header.query_type[3] = DATE_MESSAGE;
     double data = 4;
 
     errno = 0;
@@ -71,11 +71,8 @@ int main(int argc, char* argv[]) {
         printf("S: Query result: %f\n", *result);
     } else {
         char* date = (char*)query_result;
-        printf("S: ");
-        for (int i = 0; i < read_size; ++i) {
-            putchar(*date);
-            ++date;
-        }
+        printf("%lu\n", read_size);
+        printf("S: %s\n", date);
     }
 
     free(query_result);

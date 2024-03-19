@@ -53,15 +53,38 @@ int main() {
         printf("Client connected from port: %u\nIPv4 address: %s\n",
                 ntohs(client_sockaddr.sin_port),
                 inet_ntoa(client_sockaddr.sin_addr));
-        query_header_t request_header;
-        void* data = NULL;
-        size_t length = 0;
-        read_message(&request_header, &data, &length, client_socket_fd);
-        double response_data = *((double*)data);
-        response_data = sqrt(response_data);
-        request_header.query_type[0] = RESPONSE;
-        send_message(&request_header, &response_data, sizeof(response_data), client_socket_fd);
-        close(client_socket_fd);
+        int fork_res = fork();
+        if (fork_res == 0) { // Child process
+            while (1) { // Execute until client disconnects
+                query_header_t header;
+                void* read_msg = NULL;
+                size_t data_length = 0;
+                double val = 0;
+                int op_res = read_message(&header, &read_msg, &data_length, client_socket_fd);
+                if (op_res == -1) {
+                    close(client_socket_fd);
+                    return 0;
+                }
+                header.query_type[0] = RESPONSE;
+                if (header.query_type[3] == SQRT_MESSAGE) {
+                    val = *((double*)read_msg);
+                    val = sqrt(val);
+                }
+                if (read_msg != NULL) {
+                    free(read_msg);
+                }
+                op_res = send_message(&header, &val, sizeof(val),client_socket_fd);
+                if (op_res == -1) {
+                    close(client_socket_fd);
+                    return 0;
+                }
+            }
+            return 0;
+        }
+        if (fork_res == -1) {
+            printf("Failed to spawn process for handling new client connection.\n");
+            close(client_socket_fd);
+        }
     }
 
     // Free used resources
