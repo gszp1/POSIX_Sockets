@@ -1,4 +1,6 @@
 #include "utils.h"
+#include <stdint.h>
+#include <string.h>
 
 uint8_t check_endianess() {
     // 0 if big endian, 1 if little endian
@@ -11,22 +13,26 @@ uint8_t check_endianess() {
 
 uint64_t get_double_bigendian(double val) {
     uint8_t res[8];
-    int8_t i = 7;
-    while (i >= 0) {
-        res[i] = ((uint64_t)val >> (i * BITS_PER_BYTE)) % 0xff;
-        --i;
+    memcpy (res, &val, sizeof(double));
+    uint8_t result_arr[8];
+    for (int i = 0; i < 8; ++i) {
+        result_arr[i] = res[7 - i];
     }
-    return *((uint64_t*)res);
+    uint64_t result;
+    memcpy(&result, result_arr, sizeof(result));
+    return result;
 }
 
 double get_double_little_endian(uint64_t val) {
-    uint64_t res = 0;
-    int8_t i = 7;
-    while (i >= 0) {
-        res |= (val << (BITS_PER_BYTE * i));
-        --i;
+    uint8_t res[8];
+    memcpy(res, &val, sizeof(uint64_t));
+    uint8_t result_arr[8];
+    for (int i = 0; i < 8; ++i) {
+        result_arr[7 - i] = res[i];
     }
-    return *((double*)res);
+    double result;
+    memcpy(&result, result_arr, sizeof(result));
+    return result;
 }
 
 int8_t safe_write(void* data, size_t length, int sockfd) {
