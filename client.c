@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     }
 
     send_message(&header, &data, sizeof(data), sockfd);
-
+    
     close(sockfd);
     return 0;
 }

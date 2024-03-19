@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <time.h>
 
 uint8_t check_endianess() {
     // 0 if big endian, 1 if little endian
@@ -94,8 +95,18 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
             if (safe_write(&send_double, sizeof(uint64_t), sockfd) == -1) {
                 return -1;
             }
-        } else {
-            // todo: Send date
+        } else { //Date response
+            time_t t;
+            time(&t);
+            char* date = ctime(&t);
+            *(date + strlen(date) - 1) = '\0';
+            uint32_t size = strlen(date);
+            if (safe_write(&size, sizeof(size), sockfd) == -1) {
+                return -1;
+            }
+            if (safe_write(&date, size * sizeof(char), sockfd) == -1) {
+                return -1;
+            }
         }
     } else { // unknown operation
         return -1;
