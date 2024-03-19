@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <time.h>
 
 uint8_t check_endianess() {
     // 0 if big endian, 1 if little endian
