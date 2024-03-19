@@ -51,7 +51,6 @@ int main(int argc, char* argv[]) {
         close(sockfd);
         return 5;
     }
-    sleep(5);
     // Read response from server
     void* query_result = NULL;
     query_header_t result_header;
@@ -68,7 +67,8 @@ int main(int argc, char* argv[]) {
 
     // Display result
     if (read_size == 0) {
-        printf("S: Query result: %f\n", *((double*)query_result));
+        double result = ntohd(*((double*)query_result));
+        printf("S: Query result: %f\n", result);
     } else {
         char* date = (char*)query_result;
         for (int i = 0; i < read_size; ++i) {

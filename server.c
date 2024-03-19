@@ -61,9 +61,9 @@ int main() {
         double response_data = ntohd(*((uint64_t*)data));
         printf("%f\n", response_data);
         response_data = sqrt(response_data);
+        printf("%f\n", response_data);
         request_header.query_type[0] = RESPONSE;
         uint64_t send_data = htond(response_data);
-        // co ty tu wysyłasz  ty
         send_message(&request_header, &send_data, sizeof(send_data), client_socket_fd);
         close(client_socket_fd);
     }

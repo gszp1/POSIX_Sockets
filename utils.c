@@ -102,35 +102,24 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
     if (safe_write(header, sizeof(query_header_t), sockfd) == -1) {
         return -1;
     }
-    if (header->query_type[0] == REQUEST) { //Request to server
-        if (header->query_type[3] == SQRT_MESSAGE) {
-            // uint64_t send_double = get_double_bigendian(*(double*)msg_data);
-            uint64_t send_double = htond(*(double*)msg_data);
-            if (safe_write(&send_double, sizeof(uint64_t), sockfd) == -1) {
-                return -1;
-            }
+    if (header->query_type[3] == SQRT_MESSAGE) { // Request/Response for sqrt
+        uint64_t send_double = htond(*((double*)msg_data));
+        if (safe_write(&send_double, sizeof(send_double), sockfd) == -1) {
+            return -1;
         }
-        // Sending Request for date doesn't require additional data
-    } else if (header->query_type[1] == RESPONSE) { //Response to client
-        if (header->query_type[3] == SQRT_MESSAGE) {
-            uint64_t send_double = htond(*(double*)msg_data);
-            if (safe_write(&send_double, sizeof(uint64_t), sockfd) == -1) {
-                return -1;
-            }
-        } else { //Date response
-            time_t t;
-            time(&t);
-            char* date = ctime(&t);
-            *(date + strlen(date) - 1) = '\0';
-            uint32_t size = strlen(date);
-            if (safe_write(&size, sizeof(size), sockfd) == -1) {
-                return -1;
-            }
-            if (safe_write(&date, size * sizeof(char), sockfd) == -1) {
-                return -1;
-            }
+    }  else if (header->query_type[0] == RESPONSE) {
+        time_t t;
+        time(&t);
+        char* date = ctime(&t);
+        *(date + strlen(date) - 1) = '\0';
+        uint32_t size = strlen(date);
+        if (safe_write(&size, sizeof(size), sockfd) == -1) {
+            return -1;
         }
-    } else { // unknown operation
+        if (safe_write(&date, size * sizeof(char), sockfd) == -1) {
+            return -1;
+        }
+    } else {
         return -1;
     }
     return 0;
