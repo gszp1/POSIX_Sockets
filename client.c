@@ -43,8 +43,12 @@ int main(int argc, char* argv[]) {
         return 4;
     }
 
+    // Send request to server
     send_message(&header, &data, sizeof(data), sockfd);
-    
+
+    // Read response from server
+    read_message(query_header_t *header, void **msg, size_t *data_length, int sockfd);
+
     close(sockfd);
     return 0;
 }
