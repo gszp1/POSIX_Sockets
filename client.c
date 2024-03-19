@@ -15,6 +15,7 @@ int main(int argc, char* argv[]) {
     header.query_type[2] = 0;
     header.query_type[3] = SQRT_MESSAGE;
     double data = 4;
+    uint64_t net_double = htond(data);
 
     errno = 0;
     uint64_t port = strtoul(argv[2], NULL, 10);
@@ -44,13 +45,13 @@ int main(int argc, char* argv[]) {
     }
 
     // Send request to server
-    int res = send_message(&header, &data, sizeof(data), sockfd);
+    int res = send_message(&header, &net_double, sizeof(data), sockfd);
     if (res == -1) {
         printf("Failed to send request to server.\n");
         close(sockfd);
         return 5;
     }
-
+    sleep(5);
     // Read response from server
     void* query_result = NULL;
     query_header_t result_header;
@@ -61,7 +62,7 @@ int main(int argc, char* argv[]) {
         close(sockfd);
         return 6;
     }
-    
+
     // Close connection
     close(sockfd);
 

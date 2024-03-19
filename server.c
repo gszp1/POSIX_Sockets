@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdint.h>
 
 int main() {
     // Create server socket
@@ -53,18 +54,17 @@ int main() {
         printf("Client connected from port: %u\nIPv4 address: %s\n",
                 ntohs(client_sockaddr.sin_port),
                 inet_ntoa(client_sockaddr.sin_addr));
-        query_header_t header;
-        int red = read(client_socket_fd, &header, sizeof(query_header_t));
-        printf("C: %u%u%u%u%u\n", header.query_type[0], header.query_type[1], header.query_type[2], header.query_type[3], ntohl(header.message_id));
-        printf ("%d\n", red);
-
-        header.message_id = htonl(2);
-        header.query_type[0] = 2;
-        header.query_type[1] = 0;
-        header.query_type[2] = 0;
-        header.query_type[3] = 2;
-
-        write(client_socket_fd, &header, sizeof(header));
+        query_header_t request_header;
+        void* data = NULL;
+        size_t length = 0;
+        read_message(&request_header, &data, &length, client_socket_fd);
+        double response_data = ntohd(*((uint64_t*)data));
+        printf("%f\n", response_data);
+        response_data = sqrt(response_data);
+        request_header.query_type[0] = RESPONSE;
+        uint64_t send_data = htond(response_data);
+        // co ty tu wysyłasz  ty
+        send_message(&request_header, &send_data, sizeof(send_data), client_socket_fd);
         close(client_socket_fd);
     }
 
