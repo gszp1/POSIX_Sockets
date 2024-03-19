@@ -110,17 +110,17 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
         time_t t;
         time(&t);
         char* date = ctime(&t);
-        *(date + strlen(date) - 1) = '\0';
+        *(date + strlen(date) - 1) = '\0'; // set for strlen, it is not being sent
         uint32_t size = strlen(date);
         uint32_t transfer_size = htonl(size);
         if (safe_write(&transfer_size, sizeof(transfer_size), sockfd) == -1) {
             return -1;
         }
-        if (safe_write(&date, size * sizeof(char), sockfd) == -1) {
+        if (safe_write(date, size * sizeof(char), sockfd) == -1) {
             return -1;
         }
     } else {
-        return -1;
+        return 0;
     }
     return 0;
 }
@@ -151,7 +151,7 @@ int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int
             return -1;
         }
         size = ntohl(size);
-        char* date = malloc(sizeof(char) * size);
+        char* date = malloc(sizeof(char) * (size + 1));
         if (date == NULL) {
             return -1;
         }
@@ -159,6 +159,7 @@ int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int
             free(date);
             return -1;
         }
+        *(date + size) = '\0';
         *msg = date;
         *data_length = size;
     } else { // If header indicates DATE request.
