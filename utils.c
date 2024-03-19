@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <netinet/in.h>
 #include <stdint.h>
 
 uint8_t check_endianess() {
@@ -97,6 +98,47 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
     } else { // unknown operation
         return -1;
     }
+    return 0;
+}
+
+int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int sockfd) {
+    if (safe_read(header, sizeof(query_header_t), sockfd) == -1) {
+        return -1;
+    } 
+    if (validate_header(header) == -1) {
+        return -1;
+    }
+    if (header->query_type[3] == SQRT_MESSAGE) { // If header indicates SQRT message.
+        double* double_val = malloc(sizeof(double));
+        if (double_val == NULL) {
+            return -1;
+        }
+        uint64_t double_read;
+        if (safe_read(&double_read, sizeof(double_read), sockfd) == -1) {
+            free(double_val);
+            return -1;
+        }
+        *double_val = get_double_little_endian(double_read);
+        *msg = double_val;
+    } else if (header->query_type[0] == RESPONSE){ //If header indicates DATE response.
+        uint32_t size = 0;
+        if (safe_read(&size, sizeof(uint32_t), sockfd) == -1) {
+            return -1;
+        }
+        size = ntohl(size);
+        char* date = malloc(sizeof(char) * size);
+        if (date == NULL) {
+            return -1;
+        }
+        if (safe_read(date, size, sockfd) == -1) {
+            free(date);
+            return -1;
+        }
+        *msg = date;
+    } else { // If header indicates DATE request.
+        *msg = NULL;
+    }
+
     return 0;
 }
 

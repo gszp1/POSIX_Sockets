@@ -46,4 +46,7 @@ int8_t safe_read(void* data, size_t length, int sockfd);
 int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, int sockfd);
 
 int8_t validate_header(query_header_t* header);
+
+int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int sockfd);
+
 #endif //uitls.h
