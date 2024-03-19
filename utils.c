@@ -1,6 +1,4 @@
 #include "utils.h"
-#include <netinet/in.h>
-#include <stdint.h>
 
 uint8_t check_endianess() {
     // 0 if big endian, 1 if little endian
@@ -46,7 +44,7 @@ int8_t safe_write(void* data, size_t length, int sockfd) {
         if (res == 0) {
             return -1;
         }
-        written_bytes += (size_t)res; 
+        written_bytes += (size_t)res;
     }
     return 0;
 }
@@ -104,7 +102,7 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
 int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int sockfd) {
     if (safe_read(header, sizeof(query_header_t), sockfd) == -1) {
         return -1;
-    } 
+    }
     if (validate_header(header) == -1) {
         return -1;
     }
