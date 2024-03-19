@@ -18,7 +18,7 @@
 
 //// macros definitions ////
 
-#define BITS_PER_BYTE 8 
+#define BITS_PER_BYTE 8
 #define PROTOCOL_AUTO 0
 #define SQRT_MESSAGE 1
 #define DATE_MESSAGE 2
@@ -57,5 +57,11 @@ int8_t validate_header(query_header_t* header);
 
 // reads message from socket
 int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int sockfd);
+
+// wrapper for parsing host double to network double
+uint64_t htond(double host_double);
+
+// wrapper for parsing network double to host double
+double ntohd(uint64_t net_double);
 
 #endif //UTILS_h
