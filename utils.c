@@ -29,6 +29,46 @@ double get_double_little_endian(uint64_t val) {
     return *((double*)res);
 }
 
+int8_t safe_write(void* data, size_t length, int sockfd) {
+    size_t written_bytes = 0;
+    int res;
+    while (written_bytes < length) {
+        errno = 0;
+        res = write(sockfd, ((uint8_t*)data + written_bytes), length - written_bytes);
+        if (res < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            return -1;
+        }
+        if (res == 0) {
+            return -1;
+        }
+        written_bytes += (size_t)res; 
+    }
+    return 0;
+}
+
+int8_t safe_read(void* data, size_t length, int sockfd) {
+    size_t read_bytes = 0;
+    int res = 0;
+    while (read_bytes < length) {
+        errno = 0;
+        res = read(sockfd, (uint8_t*)data + read_bytes, length - read_bytes);
+        if (res < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            return -1;
+        }
+        if (res == 0) {
+            return -1;
+        }
+        read_bytes += (size_t)res;
+    }
+    return 0;
+}
+
 // porty na bigendian
 // zrobić plik config
 // sprawdzać czy jest big czy litlle endian przy zamianie na little

@@ -56,10 +56,10 @@ int main() {
                 inet_ntoa(client_sockaddr.sin_addr));
         query_header_t header;
         int red = read(client_socket_fd, &header, sizeof(query_header_t));
-        printf("C: %u%u%u%u%u\n", header.query_type[0], header.query_type[1], header.query_type[2], header.query_type[3], ntohl(header.request_id));
+        printf("C: %u%u%u%u%u\n", header.query_type[0], header.query_type[1], header.query_type[2], header.query_type[3], ntohl(header.message_id));
         printf ("%d\n", red);
 
-        header.request_id = htonl(2);
+        header.message_id = htonl(2);
         header.query_type[0] = 2;
         header.query_type[1] = 0;
         header.query_type[2] = 0;

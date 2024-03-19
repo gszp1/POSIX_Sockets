@@ -1,4 +1,15 @@
 #include "utils.h"
+#include <stdint.h>
+
+void read_response(void** read_result, int sockfd);
+
+int8_t send_date_request(uint32_t msg_id, int sockfd);
+
+// Function for sending request for sqrt result to sockfd
+// 0 - success, -1 - failure
+int8_t send_sqrt_request(uint32_t msg_id, int sockfd, double value);
+
+int8_t safe_write(uint8_t* ptr, size_t len);
 
 int main(int argc, char* argv[]) {
     // Check passed arguments
@@ -12,15 +23,6 @@ int main(int argc, char* argv[]) {
         printf ("Second argument is not a valid port number.\n");
         return 2;
     }
-
-    // Set request data
-    query_header_t header;
-    header.request_id = htonl(1);
-    header.query_type[0] = 1;
-    header.query_type[1] = 0;
-    header.query_type[2] = 0;
-    header.query_type[3] = 1;
-
 
     // Create client socket
     int sockfd = socket(AF_INET, SOCK_STREAM, PROTOCOL_AUTO);
@@ -42,15 +44,49 @@ int main(int argc, char* argv[]) {
         return 4;
     }   
 
-    // Send data to server (temporary)
-    char ch = 'a';
-    write(sockfd, &header, sizeof(query_header_t)); 
-
-    // Read server response (temporary)
-    read(sockfd, &header, 8);
-    printf("C: %u%u%u%u%u\n", header.query_type[0], header.query_type[1], header.query_type[2], header.query_type[3], ntohl(header.request_id));
-
-    // Free resources and exit with code 0
     close(sockfd);
+    return 0;
+}
+
+int8_t send_date_request(uint32_t msg_id, int sockfd) {
+    // Define header
+    query_header_t header;
+    header.message_id = htonl(msg_id);
+    header.query_type[0] = REQUEST;
+    header.query_type[1] = 0;
+    header.query_type[2] = 0;
+    header.query_type[3] = DATE_MESSAGE;
+
+    // Send date packet
+    int res = write(sockfd, &header, sizeof(header));
+    if (res == -1) {
+        return -1;
+    }
+
+    return 0;
+}
+
+int8_t send_sqrt_request(uint32_t msg_id, int sockfd, double value) {
+    // Define header
+    query_header_t header;
+    header.message_id = htonl(msg_id);
+    header.query_type[0] = REQUEST;
+    header.query_type[1] = 0;
+    header.query_type[2] = 0;
+    header.query_type[3] = SQRT_MESSAGE;
+
+    // Send header packet
+    int res = write(sockfd, &header, sizeof(header));
+    if (res == -1) {
+        return -1;
+    }
+    
+    // Send double packet
+    uint64_t write_double = get_double_bigendian(value);
+    res = write(sockfd, &write_double, sizeof(write_double));
+    if (res == -1) {
+        return -1;
+    }
+
     return 0;
 }
