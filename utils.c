@@ -86,11 +86,9 @@ int8_t safe_read(void* data, size_t length, int sockfd) {
             return -1;
         }
         if (res == 0) {
-            printf("%lu", read_bytes);
             return -1;
         }
         read_bytes += (size_t)res;
-        printf("%lu\n", read_bytes);
     }
     return 0;
 }
@@ -103,7 +101,8 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
         return -1;
     }
     if (header->query_type[3] == SQRT_MESSAGE) { // Request/Response for sqrt
-        uint64_t send_double = htond(*((double*)msg_data));
+        double* send_double_ptr = (double*)msg_data;
+        uint64_t send_double = htond(*send_double_ptr);
         if (safe_write(&send_double, sizeof(send_double), sockfd) == -1) {
             return -1;
         }
@@ -113,7 +112,8 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
         char* date = ctime(&t);
         *(date + strlen(date) - 1) = '\0';
         uint32_t size = strlen(date);
-        if (safe_write(&size, sizeof(size), sockfd) == -1) {
+        uint32_t transfer_size = htonl(size);
+        if (safe_write(&transfer_size, sizeof(transfer_size), sockfd) == -1) {
             return -1;
         }
         if (safe_write(&date, size * sizeof(char), sockfd) == -1) {
@@ -127,23 +127,19 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
 
 int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int sockfd) {
     if (safe_read(header, sizeof(query_header_t), sockfd) == -1) {
-        printf("1\n");
         return -1;
     }
     if (validate_header(header) == -1) {
-        printf("2\n");
         return -1;
     }
     if (header->query_type[3] == SQRT_MESSAGE) { // If header indicates SQRT message.
         double* double_val = malloc(sizeof(double));
         if (double_val == NULL) {
-            printf("3\n");
             return -1;
         }
         uint64_t double_read;
         if (safe_read(&double_read, sizeof(double_read), sockfd) == -1) {
             free(double_val);
-            printf("4\n");
             return -1;
         }
         *double_val = ntohd(double_read);
@@ -152,18 +148,15 @@ int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int
     } else if (header->query_type[0] == RESPONSE){ //If header indicates DATE response.
         uint32_t size = 0;
         if (safe_read(&size, sizeof(uint32_t), sockfd) == -1) {
-            printf("5\n");
             return -1;
         }
         size = ntohl(size);
         char* date = malloc(sizeof(char) * size);
         if (date == NULL) {
-            printf("6\n");
             return -1;
         }
         if (safe_read(date, size, sockfd) == -1) {
             free(date);
-            printf("7\n");
             return -1;
         }
         *msg = date;

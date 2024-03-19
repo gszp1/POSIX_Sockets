@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <stdint.h>
 
 int main() {
     // Create server socket
@@ -58,13 +57,10 @@ int main() {
         void* data = NULL;
         size_t length = 0;
         read_message(&request_header, &data, &length, client_socket_fd);
-        double response_data = ntohd(*((uint64_t*)data));
-        printf("%f\n", response_data);
+        double response_data = *((double*)data);
         response_data = sqrt(response_data);
-        printf("%f\n", response_data);
         request_header.query_type[0] = RESPONSE;
-        uint64_t send_data = htond(response_data);
-        send_message(&request_header, &send_data, sizeof(send_data), client_socket_fd);
+        send_message(&request_header, &response_data, sizeof(response_data), client_socket_fd);
         close(client_socket_fd);
     }
 
