@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <stdio.h>
 
 int main(int argc, char* argv[]) {
     // Check passed arguments
@@ -8,7 +7,7 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Prepare data
+    // Prepare query header
     query_header_t header;
     header.message_id = htonl(1);
     header.query_type[0] = REQUEST;
@@ -66,6 +65,7 @@ int main(int argc, char* argv[]) {
     // Close connection
     close(sockfd);
 
+    // Display result
     if (read_size == 0) {
         printf("S: Query result: %f\n", *((double*)query_result));
     } else {
