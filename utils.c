@@ -102,7 +102,8 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
     }
     if (header->query_type[0] == REQUEST) { //Request to server
         if (header->query_type[3] == SQRT_MESSAGE) {
-            uint64_t send_double = get_double_bigendian(*(double*)msg_data);
+            // uint64_t send_double = get_double_bigendian(*(double*)msg_data);
+            uint64_t send_double = htond(*(double*)msg_data);
             if (safe_write(&send_double, sizeof(uint64_t), sockfd) == -1) {
                 return -1;
             }
@@ -110,7 +111,7 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
         // Sending Request for date doesn't require additional data
     } else if (header->query_type[1] == RESPONSE) { //Response to client
         if (header->query_type[3] == SQRT_MESSAGE) {
-            uint64_t send_double = get_double_bigendian(*(double*)msg_data);
+            uint64_t send_double = htond(*(double*)msg_data);
             if (safe_write(&send_double, sizeof(uint64_t), sockfd) == -1) {
                 return -1;
             }
@@ -150,7 +151,7 @@ int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int
             free(double_val);
             return -1;
         }
-        *double_val = get_double_little_endian(double_read);
+        *double_val = ntohd(double_read);
         *msg = double_val;
     } else if (header->query_type[0] == RESPONSE){ //If header indicates DATE response.
         uint32_t size = 0;
