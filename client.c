@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <stdio.h>
 
 int main(int argc, char* argv[]) {
     // Check passed arguments
@@ -44,11 +45,37 @@ int main(int argc, char* argv[]) {
     }
 
     // Send request to server
-    send_message(&header, &data, sizeof(data), sockfd);
+    int res = send_message(&header, &data, sizeof(data), sockfd);
+    if (res == -1) {
+        printf("Failed to send request to server.\n");
+        close(sockfd);
+        return 5;
+    }
 
     // Read response from server
-    read_message(query_header_t *header, void **msg, size_t *data_length, int sockfd);
-
+    void* query_result = NULL;
+    query_header_t result_header;
+    size_t read_size = 0;
+    res = read_message(&result_header, &query_result, &read_size, sockfd);
+    if (res == -1) {
+        printf ("Failed to receive response from server.\n");
+        close(sockfd);
+        return 6;
+    }
+    
+    // Close connection
     close(sockfd);
+
+    if (read_size == 0) {
+        printf("S: Query result: %f\n", *((double*)query_result));
+    } else {
+        char* date = (char*)query_result;
+        for (int i = 0; i < read_size; ++i) {
+            putchar(*date);
+            ++date;
+        }
+    }
+    free(query_result);
+
     return 0;
 }

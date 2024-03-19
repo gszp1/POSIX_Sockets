@@ -153,6 +153,7 @@ int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int
         }
         *double_val = ntohd(double_read);
         *msg = double_val;
+        *data_length = 0; // 0 means that read value is a double
     } else if (header->query_type[0] == RESPONSE){ //If header indicates DATE response.
         uint32_t size = 0;
         if (safe_read(&size, sizeof(uint32_t), sockfd) == -1) {
@@ -168,6 +169,7 @@ int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int
             return -1;
         }
         *msg = date;
+        *data_length = size;
     } else { // If header indicates DATE request.
         *msg = NULL;
     }
