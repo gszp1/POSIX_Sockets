@@ -7,15 +7,6 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    // Prepare query header
-    query_header_t header;
-    header.message_id = htonl(1);
-    header.query_type[0] = REQUEST;
-    header.query_type[1] = 0;
-    header.query_type[2] = 0;
-    header.query_type[3] = DATE_MESSAGE;
-    double data = 4;
-
     errno = 0;
     uint64_t port = strtoul(argv[2], NULL, 10);
     if ((errno == ERANGE) || (port == 0) || (port > UINT16_MAX)) {
@@ -43,39 +34,78 @@ int main(int argc, char* argv[]) {
         return 4;
     }
 
-    // Send request to server
-    int res = send_message(&header, &data, sizeof(data), sockfd);
-    if (res == -1) {
-        printf("Failed to send request to server.\n");
-        close(sockfd);
-        return 5;
-    }
+    char control = ' ';
+    uint32_t request_id = 1;
+    while (1) {
+        printf("Select operation:\n[ 1 ] sqrt request\n[ 2 ] date request\n[ q ] exit\n");
+        do {
+            scanf(" %c", &control);
+            if (control != 'q' && control != 'Q' && control != '1' && control != '2') {
+                printf("Incorrect input, select available operation:\n[ 1 ] sqrt request\n[ 2 ] date request\n[ q ] exit\n");
+            }
+        } while(control != 'q' && control != 'Q' && control != '1' && control != '2');
+        if (control == 'q' || control == 'Q') {
+            break;
+        }
+        query_header_t header;
+        header.message_id = htonl(request_id);
+        header.query_type[0] = REQUEST;
+        header.query_type[1] = 0;
+        header.query_type[2] = 0;
+        double data = 0;
+        switch(control) {
+            case '1':
+                header.query_type[3] = SQRT_MESSAGE;
+                do {
+                    printf("Enter number: ");
+                    if (scanf("%lf", &data) != 1) {
+                        printf("Invalid input. Please enter a number:\n");
+                        while (getchar() != '\n'); // Clear input buffer
+                        continue;
+                    }
+                    if (data < 0) {
+                        printf("Invalid input. Please enter a non-negative number:\n");
+                    }
+                } while (data < 0);
+                break;
+            case '2':
+                header.query_type[3] = DATE_MESSAGE;
+                break;
+        }
+        // Send request to server
+        int res = send_message(&header, &data, sizeof(data), sockfd);
+        if (res == -1) {
+            printf("Failed to send request to server.\n");
+            close(sockfd);
+            return 5;
+        }
 
-    // Read response from server
-    void* query_result = NULL;
-    query_header_t result_header;
-    size_t read_size = 0;
-    res = read_message(&result_header, &query_result, &read_size, sockfd);
-    if (res == -1) {
-        printf ("Failed to receive response from server.\n");
-        close(sockfd);
-        return 6;
+        // Read response from server
+        void* query_result = NULL;
+        query_header_t result_header;
+        size_t read_size = 0;
+        res = read_message(&result_header, &query_result, &read_size, sockfd);
+        if (res == -1) {
+            printf ("Failed to receive response from server.\n");
+            close(sockfd);
+            return 6;
+        }
+
+        // Display result
+        if (read_size == 0) {
+            double* result = (double*)query_result;
+            printf("S: Query result: %f\n", *result);
+        } else {
+            char* date = (char*)query_result;
+            printf("S: %s\n", date);
+        }
+
+        free(query_result);
+        ++request_id;
     }
 
     // Close connection
     close(sockfd);
-
-    // Display result
-    if (read_size == 0) {
-        double* result = (double*)query_result;
-        printf("S: Query result: %f\n", *result);
-    } else {
-        char* date = (char*)query_result;
-        printf("%lu\n", read_size);
-        printf("S: %s\n", date);
-    }
-
-    free(query_result);
 
     return 0;
 }
