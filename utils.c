@@ -1,15 +1,6 @@
 #include "utils.h"
 
-uint8_t check_endianess() {
-    // 0 if big endian, 1 if little endian
-    int i = 1;
-    if (*((char*) & i) == 1) {
-        return 1;
-    }
-    return 0;
-}
-
-// wrapper for parsing host double to network double
+// Wrapper for parsing host double to network double
 uint64_t htond(double host_double) {
     if (check_endianess() == 0) { //if host machine is big endian
         uint64_t net_double;
@@ -19,7 +10,7 @@ uint64_t htond(double host_double) {
     return get_double_bigendian(host_double);
 }
 
-// wrapper for parsing network double to host double
+// Wrapper for parsing network double to host double
 double ntohd(uint64_t net_double) {
     if (check_endianess() == 0) { //if host machine is big endian
         double host_double;
@@ -29,6 +20,7 @@ double ntohd(uint64_t net_double) {
     return get_double_little_endian(net_double);
 }
 
+// Converts little endian double to big endian uint64_t
 uint64_t get_double_bigendian(double val) {
     uint8_t res[8];
     memcpy (res, &val, sizeof(double));
@@ -41,6 +33,7 @@ uint64_t get_double_bigendian(double val) {
     return result;
 }
 
+// Converts big endian uint64_t to little endian double
 double get_double_little_endian(uint64_t val) {
     uint8_t res[8];
     memcpy(res, &val, sizeof(uint64_t));
@@ -53,47 +46,17 @@ double get_double_little_endian(uint64_t val) {
     return result;
 }
 
-int8_t safe_write(void* data, size_t length, int sockfd) {
-    size_t written_bytes = 0;
-    int res = 0;
-    while (written_bytes < length) {
-        errno = 0;
-        res = write(sockfd, ((uint8_t*)data + written_bytes), length - written_bytes);
-        if (res < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
-            return -1;
-        }
-        if (res == 0) {
-            return -1;
-        }
-        written_bytes += (size_t)res;
+// Checks machine endianess, 0 - big endian, 1 - little endian
+uint8_t check_endianess() {
+    int i = 1;
+    if (*((char*) & i) == 1) {
+        return 1;
     }
     return 0;
 }
 
-int8_t safe_read(void* data, size_t length, int sockfd) {
-    size_t read_bytes = 0;
-    int res = 0;
-    while (read_bytes < length) {
-        errno = 0;
-        res = read(sockfd, ((uint8_t*)data + read_bytes), length - read_bytes);
-        if (res < 0) {
-            if (errno == EINTR) {
-                continue;
-            }
-            return -1;
-        }
-        if (res == 0) {
-            return -1;
-        }
-        read_bytes += (size_t)res;
-    }
-    return 0;
-}
-
-int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, int sockfd) {
+// Sends message to socket
+int8_t send_message(query_header_t* header, void* msg_data, int sockfd) {
     if (validate_header(header) == -1) {
         return -1;
     }
@@ -125,6 +88,28 @@ int8_t send_message(query_header_t* header, void* msg_data, size_t data_length, 
     return 0;
 }
 
+// Writes data to sockfd socket safely (re-writes when not all bytes were sent)
+int8_t safe_write(void* data, size_t length, int sockfd) {
+    size_t written_bytes = 0;
+    int res = 0;
+    while (written_bytes < length) {
+        errno = 0;
+        res = write(sockfd, ((uint8_t*)data + written_bytes), length - written_bytes);
+        if (res < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            return -1;
+        }
+        if (res == 0) {
+            return -1;
+        }
+        written_bytes += (size_t)res;
+    }
+    return 0;
+}
+
+// Reads message from socket
 int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int sockfd) {
     if (safe_read(header, sizeof(query_header_t), sockfd) == -1) {
         return -1;
@@ -169,6 +154,28 @@ int8_t read_message(query_header_t* header, void** msg, size_t* data_length, int
     return 0;
 }
 
+// Reads data from sockfd socket safely (re-reads when not all bytes were read)
+int8_t safe_read(void* data, size_t length, int sockfd) {
+    size_t read_bytes = 0;
+    int res = 0;
+    while (read_bytes < length) {
+        errno = 0;
+        res = read(sockfd, ((uint8_t*)data + read_bytes), length - read_bytes);
+        if (res < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            return -1;
+        }
+        if (res == 0) {
+            return -1;
+        }
+        read_bytes += (size_t)res;
+    }
+    return 0;
+}
+
+// Checks if header is correctly set
 int8_t validate_header(query_header_t* header) {
     if ((header->query_type[0] != REQUEST) && (header->query_type[0] != RESPONSE)) {
         return -1;
@@ -178,7 +185,3 @@ int8_t validate_header(query_header_t* header) {
     }
     return 0;
 }
-
-// porty na bigendian
-// zrobić plik config
-// sprawdzać czy jest big czy litlle endian przy zamianie na little

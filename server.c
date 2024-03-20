@@ -10,7 +10,7 @@ int main() {
     }
     struct sockaddr_in server_sockaddr;
     server_sockaddr.sin_port = htons(9090);
-    server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY); // listen to connections on all available IPv4 addresses on machine
+    server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     server_sockaddr.sin_family = AF_INET;
 
     // display used socket and IPv4 address
@@ -41,7 +41,7 @@ int main() {
     struct sockaddr_in client_sockaddr;
     socklen_t client_len;
     while (1) {
-        // connection acceptance
+        // accepting connections
         int client_socket_fd = accept(server_socket_fd,
             (struct sockaddr *)(&client_sockaddr),
         &client_len
@@ -72,7 +72,7 @@ int main() {
                 if (read_msg != NULL) {
                     free(read_msg);
                 }
-                op_res = send_message(&header, &val, sizeof(val),client_socket_fd);
+                op_res = send_message(&header, &val,client_socket_fd);
                 if (op_res == -1) {
                     break;
                 }

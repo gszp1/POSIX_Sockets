@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
                 break;
         }
         // Send request to server
-        int res = send_message(&header, &data, sizeof(data), sockfd);
+        int res = send_message(&header, &data, sockfd);
         if (res == -1) {
             printf("Failed to send request to server.\n");
             close(sockfd);
