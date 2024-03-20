@@ -72,7 +72,7 @@ int main() {
                 if (read_msg != NULL) {
                     free(read_msg);
                 }
-                op_res = send_message(&header, &val, sizeof(val),client_socket_fd);
+                op_res = send_message(&header, &val,client_socket_fd);
                 if (op_res == -1) {
                     break;
                 }
