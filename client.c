@@ -26,6 +26,16 @@ int main(int argc, char* argv[]) {
     inet_aton(argv[1], &server_address.sin_addr);
     socklen_t socklen = sizeof (server_address);
 
+    //Create timeout
+    struct timeval timeout;
+    timeout.tv_sec = 5;
+    timeout.tv_usec = 0;
+    int res = setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+    if (res < 0) {
+        printf ("Failed to set receiving timeout.\n");
+        return 8;
+    }
+
     // Connect with server
     int conn_res = connect(sockfd, (struct sockaddr*)(&server_address), socklen);
     if (conn_res != 0) {
