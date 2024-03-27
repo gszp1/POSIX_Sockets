@@ -1,5 +1,4 @@
 #include "utils.h"
-#include <netinet/in.h>
 
 int main() {
     // Create server socket
