@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <netinet/in.h>
 
 int main() {
     // Create server socket
@@ -50,9 +51,10 @@ int main() {
             continue;
         }
         // display used socket and IPv4 address
-        printf("Client connected from port: %u\nIPv4 address: %s\n",
-                ntohs(client_sockaddr.sin_port),
-                inet_ntoa(client_sockaddr.sin_addr));
+        printf("S: Client connected from IPv4:port: %s:%u\n",
+                inet_ntoa(client_sockaddr.sin_addr),
+                ntohs(client_sockaddr.sin_port)
+                );
         pid_t fork_res = fork();
         if (fork_res == 0) { // Child process
             while (1) { // Execute until client disconnects
@@ -67,7 +69,19 @@ int main() {
                 header.query_type[0] = RESPONSE;
                 if (header.query_type[3] == SQRT_MESSAGE) {
                     val = *((double*)read_msg);
+                    printf("S: Handling SQRT query id: %u, value: %f, client IPv4:port: %s:%u\n",
+                            ntohl(header.message_id),
+                            val,
+                            inet_ntoa(client_sockaddr.sin_addr),
+                            ntohs(client_sockaddr.sin_port)
+                    );
                     val = sqrt(val);
+                } else {
+                        printf("S: Handling DATE query id: %u, client IPv4:port: %s:%u\n",
+                        ntohl(header.message_id),
+                        inet_ntoa(client_sockaddr.sin_addr),
+                        ntohs(client_sockaddr.sin_port)
+                    );
                 }
                 if (read_msg != NULL) {
                     free(read_msg);
