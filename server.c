@@ -13,7 +13,7 @@ int main() {
     server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
     server_sockaddr.sin_family = AF_INET;
 
-    // display used socket and IPv4 address
+    // display used port and IPv4 address
     printf("Server started at port: %u\nIPv4 address: %s\n",
             ntohs(server_sockaddr.sin_port),
             inet_ntoa(server_sockaddr.sin_addr));
